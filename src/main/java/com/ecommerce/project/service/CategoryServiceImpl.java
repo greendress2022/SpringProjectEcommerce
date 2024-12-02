@@ -2,7 +2,10 @@ package com.ecommerce.project.service;
 
 import com.ecommerce.project.exceptions.APIExceptions;
 import com.ecommerce.project.model.Category;
+import com.ecommerce.project.payload.CategoryDTO;
+import com.ecommerce.project.payload.CategoryResponse;
 import com.ecommerce.project.repository.CategoryRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,14 +19,18 @@ public class CategoryServiceImpl implements CategoryService{
     private CategoryRepository categoryRepository;
 //    private List<Category> categories = new ArrayList<>(); // no NullPointerException when accessing categories
  //   private Long nextId = 1L; //use this to keep track of id
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
-    public List<Category> getAllCategories() {
+    public CategoryResponse getAllCategories() {
         List<Category> all = categoryRepository.findAll();
         if(all.isEmpty()){
             throw new APIExceptions("no category found.");
         }
-        return all;
+        //convert to DTO
+        List<CategoryDTO> categoryDTOS = all.stream().map(category -> modelMapper.map(category, CategoryDTO.class)).toList();
+        return new CategoryResponse(categoryDTOS);
     }
 
     @Override
