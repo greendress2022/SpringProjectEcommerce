@@ -34,7 +34,7 @@ public class CategoryController {
     }
 
     @RequestMapping(value ="/admin/categories/{categoryId}" , method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId){
 //        try{
 //            String status = categoryService.deleteCategory(categoryId);
 //            return new ResponseEntity<>(status, HttpStatus.OK);
@@ -42,8 +42,8 @@ public class CategoryController {
 //            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
 //        }
         //no need to handle validation in controllers since validation is done by validator in the service
-        String status = categoryService.deleteCategory(categoryId);
-        return new ResponseEntity<>(status, HttpStatus.OK);
+        CategoryDTO deletedCategoryDTO =categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>(deletedCategoryDTO, HttpStatus.OK);
     }
     @RequestMapping(value="/admin/categories/{categoryId}", method=RequestMethod.PUT)
     public ResponseEntity<CategoryDTO> updateCategory(@RequestBody CategoryDTO categoryDTO, @PathVariable Long categoryId){
