@@ -30,7 +30,9 @@ public class CategoryServiceImpl implements CategoryService{
         }
         //convert to DTO
         List<CategoryDTO> categoryDTOS = all.stream().map(category -> modelMapper.map(category, CategoryDTO.class)).toList();
-        return new CategoryResponse(categoryDTOS);
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setContent(categoryDTOS);
+        return categoryResponse ;
     }
 
     @Override
