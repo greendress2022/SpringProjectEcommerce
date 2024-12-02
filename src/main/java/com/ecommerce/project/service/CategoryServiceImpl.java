@@ -25,27 +25,32 @@ public class CategoryServiceImpl implements CategoryService{
     @Override
     public CategoryResponse getAllCategories() {
         List<Category> all = categoryRepository.findAll();
+        //validate the response from the db
         if(all.isEmpty()){
             throw new APIExceptions("no category found.");
         }
         //convert to DTO
         List<CategoryDTO> categoryDTOS = all.stream().map(category -> modelMapper.map(category, CategoryDTO.class)).toList();
         CategoryResponse categoryResponse = new CategoryResponse();
+        //set content part of the response
         categoryResponse.setContent(categoryDTOS);
         return categoryResponse ;
     }
 
     @Override
-    public void createCategory(Category category) {
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
 //        category.setCategoryId(nextId++);
         // assign id automatically
+        Category category = modelMapper.map(categoryDTO,Category.class);
         //add validation, jpa handles the query automatically by the findByCategoryName automatically
-        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        Category categoryFromDb = categoryRepository.findByCategoryName(category.getCategoryName());
         //if it exists in the db
-        if(savedCategory != null){
+        if(categoryFromDb != null){
             throw new APIExceptions("category with name " + category.getCategoryName()+"already exists.");
         }
-        categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+        CategoryDTO savedCategoryDTO = modelMapper.map(savedCategory,CategoryDTO.class);
+        return savedCategoryDTO;
     }
 
     @Override
@@ -62,7 +67,8 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Category updateCategory(Category category, Long categoryId) {
+    public CategoryDTO updateCategory(CategoryDTO categoryDTO, Long categoryId) {
+        Category category = modelMapper.map(categoryDTO, Category.class);
         List<Category> categories = categoryRepository.findAll();
         Optional<Category> optionalCategory = categories.stream().filter(c -> c.getCategoryId().equals(categoryId))
                 .findFirst(); //.get() might throw an exception if not present
@@ -71,7 +77,7 @@ public class CategoryServiceImpl implements CategoryService{
             existingCategory.setCategoryName(category.getCategoryName());
             Category savedCategory = categoryRepository.save(existingCategory);
             //System.out.println("updated category: " + savedCategory); //updated category: Category{categoryId=1, categoryName='xx'}
-            return savedCategory;
+            return modelMapper.map(savedCategory, CategoryDTO.class);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "category not found");
         }
